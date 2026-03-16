@@ -9,6 +9,7 @@
     </script>
     <script crossorigin type="module">globalThis.process={browser:!0,env:{}}</script>
     <script crossorigin type="module">
+      import { connect, createSigner } from '@permaweb/aoconnect'
       window.permutant = {{ permutantJson }}
       window.config = {{ configJson }}
       function updateStats(newStats) {
@@ -53,6 +54,18 @@
 
         updateStats(p.stats)
       }, 1000)
+
+      async function sendHatchAction() {
+        const hbUrl = window.location.origin
+        const signer = createSigner(window.arweaveWallet)
+        const ao = connect({ MODE: 'mainnet', URL: hbUrl, signer })
+        const messageId = await ao.message({
+          process: processId,
+          signer,
+          tags: [{ name: 'Action', value: 'Hatch' }],
+        })
+        const res = await ao.result({ process: processId, message: messageId })
+      }
     </script>
   </head>
   <body>
