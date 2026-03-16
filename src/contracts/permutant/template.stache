@@ -1,6 +1,14 @@
 <html>
   <head>
-    <script type="text/javascript">
+    <script type="importmap">
+    {
+      "imports": {
+        "@permaweb/aoconnect": "https://turbo-gateway.com/-K45UpuInM8T0zvWSQbi-YPuh1LGGfC62DFCaXvRpdM.js"
+      }
+    }
+    </script>
+    <script crossorigin type="module">globalThis.process={browser:!0,env:{}}</script>
+    <script crossorigin type="module">
       window.permutant = {{ permutantJson }}
       window.config = {{ configJson }}
       function updateStats(newStats) {
