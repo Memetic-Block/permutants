@@ -36,7 +36,7 @@ export async function spawnProcess(opts: SpawnProcessOptions) {
   console.log('Spawning process...')
   const processId = await ao.spawn({
     tags: [
-      { name: 'App-Name', value: 'Wuzzy' },
+      { name: 'App-Name', value: 'Permutants' },
       { name: 'Name', value: processName },
       { name: 'Authority', value: authority },
       ...(additionalTags || [])

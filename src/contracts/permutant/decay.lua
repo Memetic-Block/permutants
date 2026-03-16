@@ -34,61 +34,84 @@ local function stageForAge(age)
   return result
 end
 
--- Apply lazy decay and advance state to the current timestamp.
--- `state` is mutated in place and returned.
+-- Deep-copy a table (flat tables only, no metatables/cycles)
+local function deepCopy(orig)
+  if type(orig) ~= 'table' then return orig end
+  local copy = {}
+  for k, v in pairs(orig) do
+    copy[k] = deepCopy(v)
+  end
+  return copy
+end
+
+-- Project state forward to `now` without mutating the input.
+-- Returns a new table representing the state at time `now`.
 -- `now` is the current timestamp in milliseconds (msg.Timestamp).
-function decay.tick(state, now)
-  -- Egg and dead don't decay
+function decay.project(state, now)
+  -- Egg and dead don't decay — return a copy unchanged
   if state.stage == 'egg' or state.stage == 'dead' then
-    return state
+    local copy = deepCopy(state)
+    copy.icon = config.STAGE_ICON[state.stage]
+    return copy
   end
 
   -- Guard against missing or future timestamps
   if state.last_interaction <= 0 or now <= state.last_interaction then
-    return state
+    return deepCopy(state)
   end
 
+  local s = deepCopy(state)
+
   -- Elapsed time in seconds (AO Timestamps are in milliseconds)
-  local elapsed = (now - state.last_interaction) / 1000
-  local rates = config.DECAY_RATE[state.stage] or config.DECAY_RATE['baby']
+  local elapsed = (now - s.last_interaction) / 1000
+  local rates = config.DECAY_RATE[s.stage] or config.DECAY_RATE['baby']
 
   -- Decay stats
   for stat, rate in pairs(rates) do
     if rate > 0 then
-      state.stats[stat] = math.max(
+      s.stats[stat] = math.max(
         config.MIN_STAT,
-        state.stats[stat] - (elapsed * rate)
+        s.stats[stat] - (elapsed * rate)
       )
     end
   end
 
   -- Advance age
-  state.age = state.age + elapsed
+  s.age = s.age + elapsed
 
   -- Check death (health reached 0)
-  if state.stats.health <= 0 then
-    state.stage = 'dead'
-    state.last_interaction = now
-    return state
+  if s.stats.health <= 0 then
+    s.stage = 'dead'
+    s.icon = config.STAGE_ICON['dead']
+    s.last_interaction = now
+    return s
   end
 
   -- Check stage transitions
-  local newStage = stageForAge(state.age)
-  if newStage ~= state.stage then
-    state.variant = resolveVariant(newStage, state.stats)
-    state.stage = newStage
+  local newStage = stageForAge(s.age)
+  if newStage ~= s.stage then
+    s.variant = resolveVariant(newStage, s.stats)
+    s.stage = newStage
+    s.icon = config.STAGE_ICON[newStage]
   end
 
-  state.last_interaction = now
-  return state
+  s.icon = config.STAGE_ICON[s.stage]
+  s.last_interaction = now
+  return s
 end
 
 -- Create a fresh egg state
 function decay.newEgg()
   return {
-    name             = '',
+    name             = 'Fresh Egg',
     stage            = 'egg',
-    variant          = nil,
+    icon             = config.STAGE_ICON['egg'],
+    variant          = resolveVariant('egg', {
+      hunger    = config.MAX_STAT,
+      happiness = config.MAX_STAT,
+      health    = config.MAX_STAT,
+      energy    = config.MAX_STAT,
+    }),
     born_at          = 0,
     last_interaction = 0,
     age              = 0,

@@ -37,6 +37,12 @@ config.AGE_THRESHOLDS = {
 -- Evolution variants by dominant stat at stage transition
 -- Key = stat name that is highest at transition time
 config.VARIANTS = {
+  egg = {
+    hunger    = 'ember',
+    happiness = 'glimmer',
+    health    = 'stone',
+    energy    = 'spark',
+  },
   baby = {
     hunger    = 'glutton',
     happiness = 'playful',
@@ -67,6 +73,17 @@ config.VARIANTS = {
     health    = 'undying-sage',
     energy    = 'eternal-sage',
   },
+}
+
+-- Emoji icon per stage
+config.STAGE_ICON = {
+  egg   = '&#129370;',  -- 🥚
+  baby  = '&#128118;',  -- 👶
+  child = '&#129306;',  -- 🧒
+  teen  = '&#128526;',  -- 😎
+  adult = '&#128170;',  -- 💪
+  elder = '&#129309;',  -- 🧓
+  dead  = '&#128128;',  -- 💀
 }
 
 -- Ordered stat names for tie-breaking (first in list wins)

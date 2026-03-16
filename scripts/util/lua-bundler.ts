@@ -1,10 +1,13 @@
 import fs from 'fs'
 import path from 'path'
 
+const htmlTemplateExtensions = [ '.html', '.htm', '.mst', '.mu', '.mustache', '.stache', '.tmpl' ]
+
 interface Module {
   name: string
   path: string
   content?: string
+  isHtml?: boolean
 }
 
 function createExecutableFromProject(project: Module[]): [string, Module[]] {
@@ -20,9 +23,10 @@ function createExecutableFromProject(project: Module[]): [string, Module[]] {
   for (let i = 0; i < project.length - 1; i++) {
     const mod = project[i]
     const existing = contents.find((m) => m.path === mod.path)
+    const content = mod.isHtml ? `return [[${mod.content}]]` : mod.content || '';
     const moduleContent =
       (!existing &&
-        `-- module: "${mod.name}"\nlocal function _loaded_mod_${getModFnName(mod.name)}()\n${mod.content}\nend\n`) ||
+        `-- module: "${mod.name}"\nlocal function _loaded_mod_${getModFnName(mod.name)}()\n${content}\nend\n`) ||
       '';
     const requireMapper = `\n_G.package.loaded["${mod.name}"] = _loaded_mod_${getModFnName(existing?.name || mod.name)}()`;
 
@@ -74,7 +78,11 @@ function createProjectStructure(mainFile: string): Module[] {
 }
 
 function exploreNodes(node: Module, cwd: string): Module[] {
-  if (!fs.existsSync(node.path)) return [];
+  if (!fs.existsSync(node.path)) {
+    console.log(`Skipping ${node.name} @ ${node.path} as file does not exist!`)
+
+    return [];
+  }
 
   // set content
   node.content = fs.readFileSync(node.path, 'utf-8');
@@ -88,15 +96,23 @@ function exploreNodes(node: Module, cwd: string): Module[] {
       moduleDirectory = path.dirname(moduleDirectory)
     }
 
+    const templateExt = htmlTemplateExtensions.find(ext => mod.endsWith(ext))
+    let joint = mod.replace(/\./g, '/') + (templateExt ? '' : '.lua')
+    if (templateExt) {
+      joint = joint.replace(new RegExp(`\\/${templateExt.substring(1)}$`), templateExt)
+    }
     return {
       name: mod,
       path: path.join(
         moduleDirectory,
-        mod.replace(/\./g, '/') + '.lua'
+        joint
       ),
       content: undefined,
+      isHtml: !!templateExt
     };
   }) || [];
+
+  console.log(`Module "${node.name}" requires: `, requiredModules.map(m => m.path));
 
   return requiredModules;
 }

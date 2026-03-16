@@ -1,0 +1,82 @@
+<html>
+  <head>
+    <script type="text/javascript">
+      window.permutant = {{ permutantJson }}
+      window.config = {{ configJson }}
+      function updateStats(newStats) {
+        document.getElementById('hunger_value').textContent = newStats.hunger
+        document.getElementById('hunger_bar').style.width = newStats.hunger + '%'
+        document.getElementById('happiness_value').textContent = newStats.happiness
+        document.getElementById('happiness_bar').style.width = newStats.happiness + '%'
+        document.getElementById('health_value').textContent = newStats.health
+        document.getElementById('health_bar').style.width = newStats.health + '%'
+        document.getElementById('energy_value').textContent = newStats.energy
+        document.getElementById('energy_bar').style.width = newStats.energy + '%'
+      }
+      
+      setInterval(() => {
+        const p = window.permutant
+        const c = window.config
+        if (p.stage === 'egg' || p.stage === 'dead') return
+
+        p.age += 1
+        document.getElementById('age_value').textContent = p.age
+
+        const rates = c.DECAY_RATE[p.stage] || c.DECAY_RATE['baby']
+        for (const stat of ['hunger', 'happiness', 'health', 'energy']) {
+          if (rates[stat] > 0) {
+            p.stats[stat] = Math.max(c.MIN_STAT, p.stats[stat] - rates[stat]).toFixed(2)
+          }
+        }
+
+        if (p.stats.health <= 0) {
+          p.stage = 'dead'
+          p.icon = c.STAGE_ICON['dead']
+          document.getElementById('stage_value').textContent = p.stage
+          document.getElementById('icon_value').textContent = p.icon
+        } else {
+          for (const t of c.AGE_THRESHOLDS) {
+            if (p.age >= t.age) p.stage = t.stage
+          }
+          p.icon = c.STAGE_ICON[p.stage]
+          document.getElementById('stage_value').textContent = p.stage
+          document.getElementById('icon_value').innerHTML = p.icon
+        }
+
+        updateStats(p.stats)
+      }, 1000)
+    </script>
+  </head>
+  <body>
+    <h1>Permutant</h1>
+    <p style="font-size: 72px;"><span id="icon_value">{{ permutant.icon }}</span></p>
+    <p>Name: {{ permutant.name }}</p>
+    <p>Stage: <span id="stage_value">{{ permutant.stage }}</span></p>
+    <p>Variant: {{ permutant.variant }}</p>
+    <p>Age: <span id="age_value">{{ permutant.age }}</span> seconds</p>
+    <p>
+      Hunger: <span id="hunger_value">{{ permutant.stats.hunger }}</span>
+      <div style="display: inline-block; width: 100px; border: 1px solid black;">
+        <div id="hunger_bar" style="height:12px; background-color: blue; width:{{ permutant.stats.hunger }}%"></div>
+      </div>
+    </p>
+    <p>
+      Happiness: <span id="happiness_value">{{ permutant.stats.happiness }}</span>
+      <div style="display: inline-block; width: 100px; border: 1px solid black;">
+        <div id="happiness_bar" style="height:12px; background-color: blue; width:{{ permutant.stats.happiness }}%"></div>
+      </div>
+    </p>
+    <p>
+      Health: <span id="health_value">{{ permutant.stats.health }}</span>
+      <div style="display: inline-block; width: 100px; border: 1px solid black;">
+        <div id="health_bar" style="height:12px; background-color: blue; width:{{ permutant.stats.health }}%"></div>
+      </div>
+    </p>
+    <p>
+      Energy: <span id="energy_value">{{ permutant.stats.energy }}</span>
+      <div style="display: inline-block; width: 100px; border: 1px solid black;">
+        <div id="energy_bar" style="height:12px; background-color: blue; width:{{ permutant.stats.energy }}%"></div>
+      </div>
+    </p>
+  </body>
+</html>

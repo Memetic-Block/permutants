@@ -38,7 +38,7 @@ export async function doEval(opts: DoEvalOptions) {
     data,
     tags: [
       { name: 'Action', value: 'Eval' },
-      { name: 'App-Name', value: 'Wuzzy' },
+      { name: 'App-Name', value: 'Permutants' },
       ...(additionalTags || [])
     ],
     signer

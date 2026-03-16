@@ -32,7 +32,11 @@ export async function sendActionMessage(opts: SendActionMessageOptions) {
     URL: hyperbeamUrl,
     SCHEDULER: scheduler
   })
-  const tags = [ { name: 'Action', value: action }, ...(additionalTags || []) ]
+  const tags = [
+    { name: 'Action', value: action },
+    { name: 'App-Name', value: 'Permutants' },
+    ...(additionalTags || [])
+  ]
 
   console.info(`Sending Action [${action}] to Process [${processId}] with Node [${hyperbeamUrl}]`)
 

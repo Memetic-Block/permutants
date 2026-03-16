@@ -9,7 +9,7 @@ if (!WALLET_PATH) {
 }
 const HB_URL = process.env.HB_URL || 'https://push.forward.computer'
 const GATEWAY_URL = process.env.GATEWAY_URL || 'https://arweave.net'
-const SCHEDULER = process.env.SCHEDULER || 'n_XZJhUnmldNFo4dhajoPZWhBXuJk-OcQr5JQ49c4Zo'
+const SCHEDULER = process.env.SCHEDULER// || 'n_XZJhUnmldNFo4dhajoPZWhBXuJk-OcQr5JQ49c4Zo'
 const module = process.env.MODULE || 'ISShJH1ij-hPPt9St5UFFr_8Ys3Kj5cyg7zrMGt7H9s'//'wal-fUK-YnB9Kp5mN8dgMsSqPSqiGx-0SvwFUSwpDBI'
 const PROCESS_NAME = process.env.PROCESS_NAME || 'default'
 const tagsInput = process.env.TAGS
@@ -20,7 +20,7 @@ if (tagsInput) {
     if (!Array.isArray(additionalTags)) {
       throw new Error('TAGS must be a JSON array')
     }
-  } catch (e) {
+  } catch (e: any) {
     throw new Error(`Failed to parse TAGS as JSON: ${e.message}`)
   }
 }
