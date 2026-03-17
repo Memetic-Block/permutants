@@ -27,7 +27,12 @@ local function emitPatch(now)
     acl = acl,
     ---@diagnostic disable-next-line: assign-type-mismatch
     permutant = permutant,
-    ui = lustache:render(template, { permutant = projected, permutantJson = json.encode(permutant), config = config, configJson = json.encode(config) })
+    ui = lustache:render(template, {
+      permutant = projected,
+      permutantJson = json.encode(permutant),
+      config = config,
+      configJson = json.encode(config)
+    })
   })
 end
 
