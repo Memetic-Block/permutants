@@ -30,7 +30,9 @@
         document.getElementById('energy_value').textContent = newStats.energy
         document.getElementById('energy_bar').style.width = newStats.energy + '%'
       }
-      
+
+      // NB: This should instead be a loop that counts up from the last time the permutant was interacted with,
+      //     and apply decay for each second that has passed
       setInterval(() => {
         if (permutant.stage === 'egg' || permutant.stage === 'dead') return
 
@@ -68,13 +70,18 @@
         const signer = createSigner(window.arweaveWallet)
         const ao = connect({ MODE: 'mainnet', URL: hbUrl, signer })
         // NB: ao message sends POST to url like this http://localhost:8734/<process_id>~process@1.0/push
+        //     unsure about body for now
         const messageId = await ao.message({
           process: processId,
           signer,
           tags: [{ name: 'Action', value: 'Hatch' }],
         })
         // NB: ao result sends POST to url like this http://localhost:8734/<process_id>~process@1.0/compute=3
+        //     unsure about body for now
         try {
+          // NB: This errors because hyperbeam includes html in response headers,
+          //     but the action *may* have still succeeded, so we just log the error and move on.
+          //     This issue with this is we don't know if any business logic errors happened in the ao process
           //const result = await fetch(`${hbUrl}/${processId}~process@1.0/compute=3`, {
           //  method: 'POST',
           //  headers: { 'Content-Type': 'application/json' },
