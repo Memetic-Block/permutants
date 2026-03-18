@@ -28,10 +28,26 @@ local function emitPatch(now)
     ---@diagnostic disable-next-line: assign-type-mismatch
     permutant = permutant,
     ui = lustache:render(template, {
+      process_id = ao.id,
       permutant = projected,
       permutantJson = json.encode(permutant),
       config = config,
-      configJson = json.encode(config)
+      configJson = json.encode(config),
+      actions = function ()
+        local actions = '<div id="actions" style="padding: 4px; border: 1px solid black; display: inline-block;">'
+        if permutant.stage == 'egg' then
+          actions = actions .. '<button id="hatch_button" onclick="sendHatchAction()">Hatch</button>'
+        elseif permutant.stage ~= 'dead' then
+          actions = actions .. '<button onclick="sendAction(\'Feed\')">Feed</button>'
+          actions = actions .. '<button onclick="sendAction(\'Play\')">Play</button>'
+          actions = actions .. '<button onclick="sendAction(\'Heal\')">Heal</button>'
+          actions = actions .. '<button onclick="sendAction(\'Sleep\')">Sleep</button>'
+        else -- dead
+          actions = actions .. '<button onclick="sendAction(\'Revive\')">Revive</button>'
+        end
+        actions = actions .. '</div>'
+        return actions
+      end,
     })
   })
 end

@@ -10,8 +10,16 @@
     <script crossorigin type="module">globalThis.process={browser:!0,env:{}}</script>
     <script crossorigin type="module">
       import { connect, createSigner } from '@permaweb/aoconnect'
-      window.permutant = '{{ permutantJson }}'
-      window.config = '{{ configJson }}'
+      function decodeHtmlEncodedJson(html) {
+        const txt = document.createElement('textarea')
+        txt.innerHTML = html
+        return JSON.parse(txt.value)
+      }
+      const processId = '{{ process_id }}'
+      const permutant = decodeHtmlEncodedJson('{{ permutantJson }}')
+      console.log('got permutant', permutant)
+      const config = decodeHtmlEncodedJson('{{ configJson }}')
+      console.log('got config', config)
       function updateStats(newStats) {
         document.getElementById('hunger_value').textContent = newStats.hunger
         document.getElementById('hunger_bar').style.width = newStats.hunger + '%'
@@ -24,47 +32,62 @@
       }
       
       setInterval(() => {
-        const p = window.permutant
-        const c = window.config
-        if (p.stage === 'egg' || p.stage === 'dead') return
+        if (permutant.stage === 'egg' || permutant.stage === 'dead') return
 
-        p.age += 1
-        document.getElementById('age_value').textContent = p.age
+        permutant.age += 1
+        document.getElementById('age_value').textContent = permutant.age
 
-        const rates = c.DECAY_RATE[p.stage] || c.DECAY_RATE['baby']
+        const rates = config.DECAY_RATE[permutant.stage] || config.DECAY_RATE['baby']
         for (const stat of ['hunger', 'happiness', 'health', 'energy']) {
           if (rates[stat] > 0) {
-            p.stats[stat] = Math.max(c.MIN_STAT, p.stats[stat] - rates[stat]).toFixed(2)
+            permutant.stats[stat] = Math.max(config.MIN_STAT, permutant.stats[stat] - rates[stat]).toFixed(2)
           }
         }
 
-        if (p.stats.health <= 0) {
-          p.stage = 'dead'
-          p.icon = c.STAGE_ICON['dead']
-          document.getElementById('stage_value').textContent = p.stage
-          document.getElementById('icon_value').textContent = p.icon
+        if (permutant.stats.health <= 0) {
+          permutant.stage = 'dead'
+          permutant.icon = config.STAGE_ICON['dead']
+          document.getElementById('stage_value').textContent = permutant.stage
+          document.getElementById('icon_value').textContent = permutant.icon
         } else {
-          for (const t of c.AGE_THRESHOLDS) {
-            if (p.age >= t.age) p.stage = t.stage
+          for (const t of config.AGE_THRESHOLDS) {
+            if (permutant.age >= t.age) permutant.stage = t.stage
           }
-          p.icon = c.STAGE_ICON[p.stage]
-          document.getElementById('stage_value').textContent = p.stage
-          document.getElementById('icon_value').innerHTML = p.icon
+          permutant.icon = config.STAGE_ICON[permutant.stage]
+          document.getElementById('stage_value').textContent = permutant.stage
+          document.getElementById('icon_value').innerHTML = permutant.icon
         }
 
-        updateStats(p.stats)
+        updateStats(permutant.stats)
       }, 1000)
 
-      async function sendHatchAction() {
+      window.sendHatchAction = async () => {
+        document.getElementById('hatch_button').disabled = true
+        document.getElementById('hatch_button').textContent = 'Hatching...'
         const hbUrl = window.location.origin
         const signer = createSigner(window.arweaveWallet)
         const ao = connect({ MODE: 'mainnet', URL: hbUrl, signer })
+        // NB: ao message sends POST to url like this http://localhost:8734/<process_id>~process@1.0/push
         const messageId = await ao.message({
           process: processId,
           signer,
           tags: [{ name: 'Action', value: 'Hatch' }],
         })
-        const res = await ao.result({ process: processId, message: messageId })
+        // NB: ao result sends POST to url like this http://localhost:8734/<process_id>~process@1.0/compute=3
+        try {
+          //const result = await fetch(`${hbUrl}/${processId}~process@1.0/compute=3`, {
+          //  method: 'POST',
+          //  headers: { 'Content-Type': 'application/json' },
+          //  body: JSON.stringify({ message: messageId }),
+          //})
+          const res = await ao.result({ process: processId, message: messageId })
+          console.log('Hatch action result', res)
+        } catch (err) {
+          console.warn('Error fetching hatch result, but it may have succeeded', err)
+        }
+        document.getElementById('hatch_button').disabled = true
+        document.getElementById('hatch_button').textContent = 'Hatched!'
+        window.location.reload()
       }
     </script>
   </head>
@@ -99,5 +122,6 @@
         <div id="energy_bar" style="height:12px; background-color: blue; width:{{ permutant.stats.energy }}%"></div>
       </div>
     </p>
+    {{{ actions }}}
   </body>
 </html>
