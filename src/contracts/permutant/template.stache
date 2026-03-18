@@ -3,15 +3,15 @@
     <script type="importmap">
     {
       "imports": {
-        "@permaweb/aoconnect": "https://turbo-gateway.com/-K45UpuInM8T0zvWSQbi-YPuh1LGGfC62DFCaXvRpdM.js"
+        "@permaweb/aoconnect": "https://turbo-gateway.com/-K45UpuInM8T0zvWSQbi-YPuh1LGGfC62DFCaXvRpdM"
       }
     }
     </script>
     <script crossorigin type="module">globalThis.process={browser:!0,env:{}}</script>
     <script crossorigin type="module">
       import { connect, createSigner } from '@permaweb/aoconnect'
-      window.permutant = {{ permutantJson }}
-      window.config = {{ configJson }}
+      window.permutant = '{{ permutantJson }}'
+      window.config = '{{ configJson }}'
       function updateStats(newStats) {
         document.getElementById('hunger_value').textContent = newStats.hunger
         document.getElementById('hunger_bar').style.width = newStats.hunger + '%'
