@@ -93,7 +93,7 @@
   </head>
   <body>
     <h1>Permutant</h1>
-    <p style="font-size: 72px;"><span id="icon_value">{{ permutant.icon }}</span></p>
+    <p style="font-size: 72px;"><span id="icon_value">{{{ permutant.icon }}}</span></p>
     <p>Name: {{ permutant.name }}</p>
     <p>Stage: <span id="stage_value">{{ permutant.stage }}</span></p>
     <p>Variant: {{ permutant.variant }}</p>
