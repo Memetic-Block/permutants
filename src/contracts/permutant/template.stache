@@ -49,15 +49,17 @@
         if (permutant.stats.health <= 0) {
           permutant.stage = 'dead'
           permutant.icon = config.STAGE_ICON['dead']
+					permutant.sprite = config.STAGE_SPRITE['dead']
           document.getElementById('stage_value').textContent = permutant.stage
           document.getElementById('icon_value').textContent = permutant.icon
+					document.getElementById('sprite').src = permutant.sprite
         } else {
           for (const t of config.AGE_THRESHOLDS) {
             if (permutant.age >= t.age) permutant.stage = t.stage
           }
           permutant.icon = config.STAGE_ICON[permutant.stage]
           document.getElementById('stage_value').textContent = permutant.stage
-          document.getElementById('icon_value').innerHTML = permutant.icon
+          document.getElementById('sprite').src = permutant.sprite
         }
 
         updateStats(permutant.stats)
@@ -100,7 +102,8 @@
   </head>
   <body>
     <h1>Permutant</h1>
-    <p style="font-size: 72px;"><span id="icon_value">{{{ permutant.icon }}}</span></p>
+    <!-- <p style="font-size: 72px;"><span id="icon_value">{{{ permutant.icon }}}</span></p> !-->
+		<img id="sprite" width="160" height="160" />
     <p>Name: {{ permutant.name }}</p>
     <p>Stage: <span id="stage_value">{{ permutant.stage }}</span></p>
     <p>Variant: {{ permutant.variant }}</p>

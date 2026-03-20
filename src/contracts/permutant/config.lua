@@ -86,6 +86,16 @@ config.STAGE_ICON = {
   dead  = '&#128128;',  -- 💀
 }
 
+config.STAGE_SPRITE = {
+	egg   = './assets/egg/idle/idle.gif',
+	baby  = './assets/baby/idle/idle.gif',
+	child = './assets/child/idle/idle.gif',
+	teen  = './assets/teen/idle/idle.gif',
+	adult = './assets/adult/idle/idle.gif',
+	elder = './assets/elder/idle/idle.gif',
+	dead  = './assets/dead/dead.png',
+}
+
 -- Ordered stat names for tie-breaking (first in list wins)
 config.STAT_PRIORITY = { 'happiness', 'health', 'energy', 'hunger' }
 

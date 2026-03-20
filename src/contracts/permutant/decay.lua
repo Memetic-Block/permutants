@@ -52,6 +52,7 @@ function decay.project(state, now)
   if state.stage == 'egg' or state.stage == 'dead' then
     local copy = deepCopy(state)
     copy.icon = config.STAGE_ICON[state.stage]
+		copy.sprite = config.STAGE_SPRITE[state.stage]
     return copy
   end
 
@@ -83,6 +84,7 @@ function decay.project(state, now)
   if s.stats.health <= 0 then
     s.stage = 'dead'
     s.icon = config.STAGE_ICON['dead']
+		s.sprite = config.STAGE_SPRITE['dead']
     s.last_interaction = now
     return s
   end
@@ -93,9 +95,11 @@ function decay.project(state, now)
     s.variant = resolveVariant(newStage, s.stats)
     s.stage = newStage
     s.icon = config.STAGE_ICON[newStage]
+		s.sprite = config.STAGE_SPRITE[newStage]
   end
 
   s.icon = config.STAGE_ICON[s.stage]
+	s.sprite = config.STAGE_SPRITE[s.stage]
   s.last_interaction = now
   return s
 end
@@ -106,6 +110,7 @@ function decay.newEgg()
     name             = 'Fresh Egg',
     stage            = 'egg',
     icon             = config.STAGE_ICON['egg'],
+		sprite					 = config.STAGE_SPRITE['egg'],
     variant          = resolveVariant('egg', {
       hunger    = config.MAX_STAT,
       happiness = config.MAX_STAT,
