@@ -10,15 +10,10 @@
     <script crossorigin type="module">globalThis.process={browser:!0,env:{}}</script>
     <script crossorigin type="module">
       import { connect, createSigner } from '@permaweb/aoconnect'
-      function decodeHtmlEncodedJson(html) {
-        const txt = document.createElement('textarea')
-        txt.innerHTML = html
-        return JSON.parse(txt.value)
-      }
       const processId = '{{ process_id }}'
-      const permutant = decodeHtmlEncodedJson('{{ permutantJson }}')
+      const permutant = {{{ permutantJson }}}
       console.log('got permutant', permutant)
-      const config = decodeHtmlEncodedJson('{{ configJson }}')
+      const config = {{{ configJson }}}
       console.log('got config', config)
       function updateStats(newStats) {
         document.getElementById('hunger_value').textContent = newStats.hunger
@@ -47,21 +42,22 @@
         }
 
         if (permutant.stats.health <= 0) {
+					console.log('permutant is dead :(')
           permutant.stage = 'dead'
           permutant.icon = config.STAGE_ICON['dead']
 					permutant.sprite = config.STAGE_SPRITE['dead']
           document.getElementById('stage_value').textContent = permutant.stage
-          document.getElementById('icon_value').textContent = permutant.icon
-					document.getElementById('sprite').src = permutant.sprite
+          // document.getElementById('icon_value').textContent = permutant.icon
+					document.getElementById('sprite_container').innerHTML = permutant.sprite
         } else {
+					console.log('permutant stage is: ', permutant.stage)
           for (const t of config.AGE_THRESHOLDS) {
             if (permutant.age >= t.age) permutant.stage = t.stage
           }
           permutant.icon = config.STAGE_ICON[permutant.stage]
+					permutant.sprite = config.STAGE_SPRITE[permutant.stage]
           document.getElementById('stage_value').textContent = permutant.stage
-          document.getElementById('sprite').src = permutant.sprite
         }
-
         updateStats(permutant.stats)
       }, 1000)
 
@@ -103,7 +99,7 @@
   <body>
     <h1>Permutant</h1>
     <!-- <p style="font-size: 72px;"><span id="icon_value">{{{ permutant.icon }}}</span></p> !-->
-		<img id="sprite" width="160" height="160" />
+		<div id="sprite_container" style="width: 64px; height: 64px;">{{{ permutant.sprite }}}</div>
     <p>Name: {{ permutant.name }}</p>
     <p>Stage: <span id="stage_value">{{ permutant.stage }}</span></p>
     <p>Variant: {{ permutant.variant }}</p>
